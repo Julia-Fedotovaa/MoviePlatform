@@ -38,7 +38,7 @@ class AbstractMedia(models.Model):
 
 
 class Movie(AbstractMedia):
-    length = models.PositiveIntegerField(verbose_name='Продолжительность')
+    length = models.TimeField(verbose_name='Продолжительность')
 
     def __str__(self):
         return self.title + ' (' + str(self.release_date.year) + ')'
