@@ -52,7 +52,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Динамически заполняем список медиа
+
         media_choices = [
             *[(f'movie-{movie.id}', f'Фильм: {movie.title}') for movie in Movie.objects.all()],
             *[(f'tvshow-{tvshow.id}', f'Сериал: {tvshow.title}') for tvshow in TVShow.objects.all()]
@@ -62,13 +62,11 @@ class RatingSerializer(serializers.ModelSerializer):
     def get_media(self, obj):
         try:
             if obj.media.get_media_type() == ContentType.objects.get_for_model(Movie):
-                print(1)
                 print(MovieSerializer(obj.media).data)
 
                 return MovieSerializer(obj.media).data
 
             elif obj.media.get_media_type() == ContentType.objects.get_for_model(TVShow):
-                print(2)
                 print(TVShowSerializer(obj.media).data)
 
                 return TVShowSerializer(obj.media).data
@@ -78,10 +76,6 @@ class RatingSerializer(serializers.ModelSerializer):
             return None
 
     def validate_media_choice(self, value):
-        """
-        Валидация выбранного медиа.
-        Формат: movie-<id> или tvshow-<id>
-        """
         try:
             media_type, media_id = value.split('-')
             media_id = int(media_id)
@@ -100,9 +94,6 @@ class RatingSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        """
-        Переопределяем создание объекта для корректной записи в базу.
-        """
         media_type, media_id = validated_data.pop('media_choice').split('-')
         media = None
         if media_type == "movie":

@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from .validators import validate_rating
+from .validators import validate_rating, release_date_validator
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from simple_history.models import HistoricalRecords
@@ -31,7 +31,7 @@ class AbstractMedia(PolymorphicModel):
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     poster = models.ImageField(upload_to='posters/', verbose_name='Постер')
-    release_date = models.DateField(verbose_name='Дата выхода')
+    release_date = models.DateField(verbose_name='Дата выхода', validators=[release_date_validator])
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name='Страна')
     genres = models.ManyToManyField(Genre, verbose_name='Жанры')
 

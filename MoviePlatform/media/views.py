@@ -1,6 +1,7 @@
-from django.db.models import Q
+from django.db.models import Q, Avg
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,24 +14,32 @@ class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     sorting_fields = ['name']
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
 
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     sorting_fields = ['name']
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
 
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['title']
     filterset_fields = ['country', 'release_date']
     sorting_fields = ['title', 'release_date', 'rating']
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
-        high_rated_movies = Movie.objects.filter(rating__gt=4.0)
+        high_rated_movies = Movie.objects.annotate(
+            average_rating=Avg('abstractmedia_ptr__rating__rating')
+        ).filter(average_rating__gt=4.0)
+
         serializer = self.get_serializer(high_rated_movies, many=True)
 
         return Response(serializer.data)
@@ -49,17 +58,20 @@ class MovieViewSet(viewsets.ModelViewSet):
         return Response({'error': 'Rating value is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class TVShowViewSet(viewsets.ModelViewSet):
     queryset = TVShow.objects.all()
     serializer_class = TVShowSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['title']
     filterset_fields = ['country', 'release_date']
     sorting_fields = ['title', 'release_date', 'rating']
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
-        high_rated_tvshows = TVShow.objects.filter(rating__gt=4.0)
+        high_rated_tvshows = TVShow.objects.annotate(
+            average_rating=Avg('abstractmedia_ptr__rating__rating')
+        ).filter(average_rating__gt=4.0)
+
         serializer = self.get_serializer(high_rated_tvshows, many=True)
 
         return Response(serializer.data)
@@ -81,6 +93,10 @@ class TVShowViewSet(viewsets.ModelViewSet):
 class RatingViewSet(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
+    sorting_fields = ['rating']
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['rating', 'media', 'user']
+    search_fields = ['media__title']
 
 
 class ComplexQueryViewFirst(viewsets.ViewSet):
