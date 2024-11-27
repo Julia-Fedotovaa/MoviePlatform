@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class Genre(models.Model):
@@ -33,11 +33,16 @@ class AbstractMedia(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name='Страна')
     genres = models.ManyToManyField(Genre, verbose_name='Жанры')
 
+    def __str__(self):
+        return self.title
+
     class Meta:
-        abstract = True
+        verbose_name = 'Медиа'
+        verbose_name_plural = 'Медиа'
 
 
 class Movie(AbstractMedia):
+    history = HistoricalRecords()
     length = models.TimeField(verbose_name='Продолжительность')
 
     def __str__(self):
@@ -49,6 +54,7 @@ class Movie(AbstractMedia):
 
 
 class TVShow(AbstractMedia):
+    history = HistoricalRecords()
     seasons_count = models.PositiveIntegerField(verbose_name='Количество сезонов')
 
     def __str__(self):
@@ -66,9 +72,11 @@ class Rating(models.Model):
     )
     rating = models.PositiveIntegerField(verbose_name='Оценка', default=1)
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    media = GenericForeignKey('content_type', 'object_id')
+    media = models.ForeignKey(
+        AbstractMedia, on_delete=models.CASCADE,
+        verbose_name='Медиа',
+        blank=True, null=True
+    )
 
     def __str__(self):
         return f"{self.user} - {self.media} - {self.rating}"

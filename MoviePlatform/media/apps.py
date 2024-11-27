@@ -8,4 +8,4 @@ class MediaConfig(AppConfig):
     verbose_name_plural = 'Медиа'
 
     def ready(self):
-        import media.signals
+        from . import signals
