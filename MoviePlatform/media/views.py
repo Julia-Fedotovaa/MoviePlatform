@@ -36,8 +36,8 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
 
 
-class ComplexQueryView(APIView):
-    def get(self, request):
+class ComplexQueryView(viewsets.ViewSet):  # Or use ModelViewSet
+    def list(self, request):
         queryset = Movie.objects.filter(
             Q(title__icontains="a") |
             (~Q(country__name="USA") & Q(length__lt="02:00:00"))

@@ -1,11 +1,14 @@
 ﻿from django.urls import path
+from rest_framework import routers
 
 from media import views
 
-urlpatterns = [
-    path('genres/', views.GenreViewSet.as_view, name='genres'),
-    path('countries/', views.CountryViewSet.as_view, name='countries'),
-    path('movies/', views.MovieViewSet.as_view, name='movies'),
-    path('tvshows/', views.TVShowViewSet.as_view, name='tvshows'),
-    path('ratings/', views.RatingViewSet.as_view, name='ratings'),
-]
+router = routers.DefaultRouter()
+router.register(r'genres', views.GenreViewSet)
+router.register(r'countries', views.CountryViewSet)
+router.register(r'movies', views.MovieViewSet)
+router.register(r'tvshows', views.TVShowViewSet)
+router.register(r'ratings', views.RatingViewSet)
+router.register(r'complex-query', views.ComplexQueryView, basename='complex-query')
+
+urlpatterns = router.urls

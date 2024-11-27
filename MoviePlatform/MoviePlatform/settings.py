@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'simple_history',
     'import_export',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -67,7 +68,9 @@ ROOT_URLCONF = 'MoviePlatform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
