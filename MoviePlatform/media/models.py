@@ -1,5 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
+from .validators import validate_rating
 from django.db import models
+from polymorphic.models import PolymorphicModel
 from simple_history.models import HistoricalRecords
 
 
@@ -25,7 +27,7 @@ class Country(models.Model):
         verbose_name_plural = 'Страны'
 
 
-class AbstractMedia(models.Model):
+class AbstractMedia(PolymorphicModel):
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     poster = models.ImageField(upload_to='posters/', verbose_name='Постер')
@@ -45,6 +47,9 @@ class Movie(AbstractMedia):
     history = HistoricalRecords()
     length = models.TimeField(verbose_name='Продолжительность')
 
+    def get_media_type(self):
+        return ContentType.objects.get_for_model(self)
+
     def __str__(self):
         return self.title + ' (' + str(self.release_date.year) + ')'
 
@@ -56,6 +61,9 @@ class Movie(AbstractMedia):
 class TVShow(AbstractMedia):
     history = HistoricalRecords()
     seasons_count = models.PositiveIntegerField(verbose_name='Количество сезонов')
+
+    def get_media_type(self):
+        return ContentType.objects.get_for_model(self)
 
     def __str__(self):
         return self.title
@@ -70,7 +78,7 @@ class Rating(models.Model):
         'auth.User', on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
-    rating = models.PositiveIntegerField(verbose_name='Оценка', default=1)
+    rating = models.PositiveIntegerField(verbose_name='Оценка', default=5, validators=[validate_rating])
 
     media = models.ForeignKey(
         AbstractMedia, on_delete=models.CASCADE,

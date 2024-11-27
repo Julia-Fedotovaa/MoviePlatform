@@ -21,11 +21,11 @@ from drf_yasg.views import get_schema_view
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="My API",
+        title="Movie Platform API",
         default_version='v1',
-        description="Description of the API",
+        description="API for Movie Platform",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@myapi.local"),
+        contact=openapi.Contact(email="yulia.fedotova@gmail.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,

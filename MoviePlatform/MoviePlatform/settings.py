@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
     'media.apps.MediaConfig',
-    'api.apps.ApiConfig',
     'rest_framework',
     'django_filters',
     'simple_history',
