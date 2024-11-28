@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'simple_history',
     'import_export',
     'drf_yasg',
+    'api.apps.ApiConfig',
+    'django_bootstrap5',
 ]
 
 REST_FRAMEWORK = {

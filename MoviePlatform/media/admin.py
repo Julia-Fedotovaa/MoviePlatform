@@ -5,6 +5,10 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Country, Genre, Movie, TVShow, Rating
 
+
+app_name = 'Медиа'
+
+
 class MovieResource(resources.ModelResource):
     def get_export_queryset(self, queryset):
         return queryset.filter(is_published=True)
@@ -17,6 +21,7 @@ class MovieResource(resources.ModelResource):
 
     def get_genres(self, movie):
         return ", ".join(genre.name for genre in movie.genres.all())
+
 
 @admin.register(Movie)
 class MovieAdmin(ExportMixin, SimpleHistoryAdmin):
@@ -45,6 +50,7 @@ class TVShowResource(resources.ModelResource):
 
     def get_genres(self, tvshow):
         return ", ".join(genre.name for genre in tvshow.genres.all())
+
 
 @admin.register(TVShow)
 class TVShowAdmin(ExportMixin, SimpleHistoryAdmin):

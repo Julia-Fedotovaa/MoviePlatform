@@ -1,0 +1,12 @@
+﻿<div class="col">
+    <div class="card h-100">
+        <img src="../../static{{ tvshow.poster.url }}" class="card-img-top" alt="{{ tvshow.title }}">
+        <div class="card-body">
+            <h5 class="card-title text-truncate">{{ tvshow.title }}</h5>
+            <p class="card-text">{{ tvshow.description|truncatechars:100 }}</p>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'movie' tvshow.id %}" class="btn btn-primary">Подробнее</a>
+        </div>
+    </div>
+</div>

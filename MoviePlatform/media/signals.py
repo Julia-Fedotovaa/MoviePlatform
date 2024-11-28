@@ -2,6 +2,7 @@
 from django.dispatch import receiver
 from .models import Country
 
+
 @receiver(post_migrate)
 def populate_countries(sender, **kwargs):
     if sender.name == 'media':

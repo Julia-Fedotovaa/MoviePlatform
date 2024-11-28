@@ -1,0 +1,13 @@
+﻿<div class="col">
+    <div class="card h-100">
+{#        make image small#}
+        <img src="../../static{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+        <div class="card-body">
+            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+            <p class="card-text">{{ movie.description|truncatechars:100 }}</p>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'movie' movie.id %}" class="btn btn-primary">Подробнее</a>
+        </div>
+    </div>
+</div>

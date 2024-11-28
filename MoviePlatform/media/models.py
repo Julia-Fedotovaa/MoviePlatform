@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Avg
+
 from .validators import validate_rating, release_date_validator
 from django.db import models
 from polymorphic.models import PolymorphicModel
@@ -50,6 +52,15 @@ class Movie(AbstractMedia):
     def get_media_type(self):
         return ContentType.objects.get_for_model(self)
 
+    @classmethod
+    def get_high_rated(cls, threshold=4.0):
+        """
+        Получение фильмов с высоким средним рейтингом.
+        """
+        return cls.objects.annotate(
+            average_rating=Avg('abstractmedia_ptr__rating__rating')
+        ).filter(average_rating__gt=threshold)
+
     def __str__(self):
         return self.title + ' (' + str(self.release_date.year) + ')'
 
@@ -61,6 +72,15 @@ class Movie(AbstractMedia):
 class TVShow(AbstractMedia):
     history = HistoricalRecords()
     seasons_count = models.PositiveIntegerField(verbose_name='Количество сезонов')
+
+    @classmethod
+    def get_high_rated(cls, threshold=4.0):
+        """
+        Получение сериалов с высоким средним рейтингом.
+        """
+        return cls.objects.annotate(
+            average_rating=Avg('abstractmedia_ptr__rating__rating')
+        ).filter(average_rating__gt=threshold)
 
     def get_media_type(self):
         return ContentType.objects.get_for_model(self)
