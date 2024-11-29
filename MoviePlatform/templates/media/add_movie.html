@@ -1,0 +1,47 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Добавить фильм{% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Добавить фильм</h1>
+    <form method="POST" enctype="multipart/form-data" class="w-50 mx-auto">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="title" class="form-label">Название</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="poster" class="form-label">Постер</label>
+            <input type="file" class="form-control" id="poster" name="poster" required>
+        </div>
+        <div class="mb-3">
+            <label for="release_date" class="form-label">Дата выхода</label>
+            <input type="date" class="form-control" id="release_date" name="release_date" required>
+        </div>
+        <div class="mb-3">
+            <label for="length" class="form-label">Продолжительность</label>
+            <input type="time" class="form-control" id="length" name="length" required>
+        </div>
+        <div class="mb-3">
+            <label for="genres" class="form-label">Жанры</label>
+            <select class="form-control" id="genres" name="genres" multiple required>
+                {% for genre in genres %}
+                    <option value="{{ genre.id }}">{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="country" class="form-label">Страна</label>
+            <select class="form-control" id="country" name="country" required>
+                {% for country in countries %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+{% endblock %}

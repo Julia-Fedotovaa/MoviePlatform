@@ -1,4 +1,4 @@
-../.idea/
+﻿../.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -104,7 +104,7 @@ ENV/
 
 .DS_Store
 *.sqlite3
-media/
+#media/
 *.pyc
 *.db
 *.pid
