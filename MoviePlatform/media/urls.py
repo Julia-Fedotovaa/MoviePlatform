@@ -8,4 +8,5 @@ urlpatterns = [
     path('tvshow/<int:pk>/', views.TVShowView.as_view(), name='tvshow'),
     path('add_movie/', views.AddMovieView.as_view(), name='add_movie'),
     path('add_tvshow/', views.AddTVShowView.as_view(), name='add_tvshow'),
+    path('complex_querries/', views.ComplexQueriesView.as_view(), name='complex_querries'),
 ]

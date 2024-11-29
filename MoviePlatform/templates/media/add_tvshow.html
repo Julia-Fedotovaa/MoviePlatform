@@ -36,7 +36,7 @@
         </div>
         <div class="mb-3">
             <label for="country" class="form-label">Страна</label>
-            <select class="form-control" id="country" name="country" required>
+            <select class="form-control" id="country" name="country">
                 {% for country in countries %}
                     <option value="{{ country.id }}">{{ country.name }}</option>
                 {% endfor %}

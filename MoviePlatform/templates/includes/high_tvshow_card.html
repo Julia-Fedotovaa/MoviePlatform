@@ -1,0 +1,20 @@
+﻿<div class="col">
+    <div class="card h-100">
+        {#        make image small#}
+        <img src="../../static{{ tvshow.poster.url }}" class="card-img-top" alt="{{ tvshow.title }}"
+             style="max-height: 150px; min-height: 150px; object-fit: cover; object-position: top;">
+        <div class="card-body">
+            <h5 class="card-title mb-3">{{ tvshow.title|truncatechars:25 }}</h5>
+
+            <h6 class="card-subtitle mb-2 text-muted">Оценка: {{ tvshow.get_average_rating|floatformat:2 }}</h6>
+
+            <p class="card-text">{{ tvshow.description|truncatechars:50 }}</p>
+        </div>
+
+        <a href="{% url 'tvshow' tvshow.id %}" class="text-decoration-none text-reset">
+            <div class="card-footer text-center">
+                Подробнее
+            </div>
+        </a>
+    </div>
+</div>

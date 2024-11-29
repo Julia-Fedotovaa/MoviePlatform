@@ -1,1 +1,53 @@
-﻿{{ movie }}
+﻿{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col">
+            <h1>{{ movie.title }}</h1>
+            <h2>{{ movie.description }}</h2>
+            <hr>
+            <p>Рейтинг: {% if movie.reviews.all %}{{ movie.get_average_rating|floatformat:2 }}{% else %}???{% endif %}</p>
+            <p>Дата выхода: {{ movie.release_date }}</p>
+            <p>Жанры:
+                {% for genre in movie.genres.all %}{{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            <p>Продолжительность: {{ movie.length }}</p>
+            <p>Страна: {{ movie.country }}</p>
+        </div>
+
+        <div class="col">
+            <img src="../../static{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid">
+        </div>
+    </div>
+
+    <hr>
+
+    {% if user.is_authenticated %}
+        <h2>Добавить отзыв</h2>
+        <div class="row">
+            <div class="col">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3 w-25">
+                        <label for="rating" class="form-label">Оценка</label>
+                        <input type="number" class="form-control" id="rating" name="rating" required min="1" max="5">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <p>Пожалуйста, <a href="{% url 'login' %}">войдите</a>, чтобы оставить отзыв.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Отзывы</h2>
+    <div class="row">
+        {% for review in reviews %}
+            {% include 'includes/review.html' %}
+        {% endfor %}
+    </div>
+
+{% endblock %}

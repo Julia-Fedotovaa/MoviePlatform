@@ -1,0 +1,17 @@
+﻿<div class="card mb-3 col-3 mx-3">
+    <div class="card-body">
+        <h5 class="card-title
+                {% if review.rating >= 4 %}text-success
+                {% elif review.rating >= 2 %}text-warning
+                {% else %}text-danger{% endif %}">
+            {{ review.user }} -
+            {% for i in review.full_stars %}
+                ★
+            {% endfor %}
+            {% for i in review.empty_stars %}
+                ☆
+            {% endfor %}
+        </h5>
+        <p class="card-text">{{ review.text }}</p>
+    </div>
+</div>
