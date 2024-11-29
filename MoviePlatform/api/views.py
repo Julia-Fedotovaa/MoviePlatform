@@ -1,3 +1,4 @@
+import django_filters
 from django.db.models import Q, Avg
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -30,8 +31,20 @@ class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
-    filterset_fields = ['country', 'release_date']
+    filterset_fields = ['country']
     sorting_fields = ['title', 'release_date', 'rating']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        country = Country.objects.filter(name=self.request.query_params.get('country')).first()
+
+        if country:
+            queryset = queryset.filter(country=country)
+
+        if user.is_authenticated:
+            return queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
+        return queryset
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
@@ -57,12 +70,22 @@ class MovieViewSet(viewsets.ModelViewSet):
         return Response({'error': 'Rating value is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class TVShowFilter(django_filters.FilterSet):
+    release_date = django_filters.DateFromToRangeFilter(field_name='release_date')  # фильтр по дате
+    country = django_filters.CharFilter(field_name='country__name', lookup_expr='icontains')  # фильтр по стран
+
+    class Meta:
+        model = TVShow
+        fields = ['release_date', 'country']
+
+
 class TVShowViewSet(viewsets.ModelViewSet):
     queryset = TVShow.objects.all()
     serializer_class = TVShowSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['title']
     filterset_fields = ['country', 'release_date']
+    filterset_class = TVShowFilter
     sorting_fields = ['title', 'release_date', 'rating']
 
     @action(methods=['GET'], detail=False)

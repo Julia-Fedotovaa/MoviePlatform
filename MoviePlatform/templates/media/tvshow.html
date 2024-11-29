@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col">
             <h1>{{ tvshow.title }}</h1>
-            <h2>{{ tvshow.description }}</h2>
+            <h4>{{ tvshow.description }}</h4>
             <hr>
             <p>Рейтинг: {% if tvshow.reviews.all %}{{ tvshow.get_average_rating|floatformat:2 }}{% else %}???{% endif %}</p>
             <p>Дата выхода: {{ tvshow.release_date }}</p>
@@ -17,7 +17,7 @@
         </div>
 
         <div class="col">
-            <img src="../../static{{ tvshow.poster.url }}" alt="{{ tvshow.title }}" class="img-fluid">
+            <img src="../../static{{ tvshow.poster.url }}" alt="{{ tvshow.title }}" class="img-fluid" style="max-height: 500px;">
         </div>
     </div>
 
@@ -41,7 +41,7 @@
         <p>Пожалуйста, <a href="{% url 'login' %}">войдите</a>, чтобы оставить отзыв.</p>
     {% endif %}
 
-    <h2>Отзывы</h2>
+    <h2 class="mt-4">Отзывы</h2>
     <div class="row">
         {% for review in reviews %}
             {% include 'includes/review.html' %}

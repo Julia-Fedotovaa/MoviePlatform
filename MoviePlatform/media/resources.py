@@ -30,10 +30,10 @@ class MovieResource(resources.ModelResource):
 class TVShowResource(resources.ModelResource):
     class Meta:
         model = TVShow
-        fields = ('Заголовок', 'Дата выхода', 'Жанры', 'Страна', 'Количество сезонов')
+        fields = ('title', 'release_date', 'genres', 'country', 'seasons_count')
 
     def get_export_queryset(self, queryset):
-        return queryset.filter(seasons_count__gt=3)
+        return queryset.filter(seasons_count__gt=6)
 
     def dehydrate_title(self, tvshow):
         return f"Сериал: {tvshow.title}"
@@ -48,4 +48,7 @@ class TVShowResource(resources.ModelResource):
         return tvshow.country.name
 
     def dehydrate_seasons_count(self, tvshow):
+        return self.get_seasons_count(tvshow)
+
+    def get_seasons_count(self, tvshow):
         return tvshow.seasons_count

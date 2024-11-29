@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col">
             <h1>{{ movie.title }}</h1>
-            <h2>{{ movie.description }}</h2>
+            <h4>{{ movie.description }}</h4>
             <hr>
             <p>Рейтинг: {% if movie.reviews.all %}{{ movie.get_average_rating|floatformat:2 }}{% else %}???{% endif %}</p>
             <p>Дата выхода: {{ movie.release_date }}</p>
@@ -17,7 +17,7 @@
         </div>
 
         <div class="col">
-            <img src="../../static{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid">
+            <img src="../../static{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid" style="max-height: 500px;">
         </div>
     </div>
 
