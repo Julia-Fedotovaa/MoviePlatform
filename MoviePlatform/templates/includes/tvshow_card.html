@@ -1,12 +1,25 @@
 ﻿<div class="col">
     <div class="card h-100">
-        <img src="../../static{{ tvshow.poster.url }}" class="card-img-top" alt="{{ tvshow.title }}">
+        {#        make image small#}
+        <img src="../../static{{ tvshow.poster.url }}" class="card-img-top" alt="{{ tvshow.title }}"
+             style="max-height: 300px; min-height: 300px; object-fit: cover; object-position: top;">
         <div class="card-body">
-            <h5 class="card-title text-truncate">{{ tvshow.title }}</h5>
+            <h5 class="card-title mb-3">{{ tvshow.title }}</h5>
+
+            <h6 class="card-subtitle mb-2 text-muted">
+                {% for genre in tvshow.genres.all %}
+                    {{ genre.name }}
+                    {% if not forloop.last %}| {% endif %}
+                {% endfor %}
+
+            </h6>
             <p class="card-text">{{ tvshow.description|truncatechars:100 }}</p>
         </div>
-        <div class="card-footer">
-            <a href="{% url 'movie' tvshow.id %}" class="btn btn-primary">Подробнее</a>
-        </div>
+
+        <a href="{% url 'tvshow' tvshow.id %}" class="text-decoration-none text-reset">
+            <div class="card-footer text-center">
+                Подробнее
+            </div>
+        </a>
     </div>
 </div>

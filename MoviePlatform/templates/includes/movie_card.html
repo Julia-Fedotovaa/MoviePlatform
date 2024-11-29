@@ -1,13 +1,25 @@
 ﻿<div class="col">
     <div class="card h-100">
-{#        make image small#}
-        <img src="../../static{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+        {#        make image small#}
+        <img src="../../static{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}"
+             style="max-height: 300px; min-height: 300px; object-fit: cover; object-position: top;">
         <div class="card-body">
-            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+            <h5 class="card-title mb-3">{{ movie.title }}</h5>
+        
+            <h6 class="card-subtitle mb-2 text-muted">
+                {% for genre in movie.genres.all %}
+                    {{ genre.name }}
+                    {% if not forloop.last %}| {% endif %}
+                {% endfor %}
+
+            </h6>
             <p class="card-text">{{ movie.description|truncatechars:100 }}</p>
         </div>
-        <div class="card-footer">
-            <a href="{% url 'movie' movie.id %}" class="btn btn-primary">Подробнее</a>
+
+        <a href="{% url 'movie' movie.id %}" class="text-decoration-none text-reset">
+        <div class="card-footer text-center">
+            Подробнее
         </div>
+        </a>
     </div>
 </div>

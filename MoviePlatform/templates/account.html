@@ -1,0 +1,21 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Мой аккаунт{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center">Мой аккаунт</h1>
+        <div class="card mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <h5 class="card-title">Здравствуйте, {{ user.username }}!</h5>
+                <p class="card-text">Email: {{ user.email }}</p>
+                <p class="card-text">Дата регистрации: {{ user.date_joined|date:"d.m.Y" }}</p>
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Выйти</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

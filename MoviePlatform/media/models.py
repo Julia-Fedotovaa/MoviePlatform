@@ -61,8 +61,14 @@ class Movie(AbstractMedia):
             average_rating=Avg('abstractmedia_ptr__rating__rating')
         ).filter(average_rating__gt=threshold)
 
+    def get_average_rating(self):
+        return self.rating_set.aggregate(Avg('rating'))['rating__avg']
+
+    def get_genres(self):
+        return ", ".join(genre.name for genre in self.genres.all())
+
     def __str__(self):
-        return self.title + ' (' + str(self.release_date.year) + ')'
+        return self.title + ' (' + str(self.release_date.year) + ')' + str([genre.name for genre in self.genres.all()])
 
     class Meta:
         verbose_name = 'Фильм'
@@ -81,6 +87,9 @@ class TVShow(AbstractMedia):
         return cls.objects.annotate(
             average_rating=Avg('abstractmedia_ptr__rating__rating')
         ).filter(average_rating__gt=threshold)
+
+    def get_average_rating(self):
+        return self.rating_set.aggregate(Avg('rating'))['rating__avg']
 
     def get_media_type(self):
         return ContentType.objects.get_for_model(self)
