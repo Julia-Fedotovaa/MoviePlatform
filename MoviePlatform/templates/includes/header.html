@@ -21,9 +21,12 @@
                     </li>
                 </ul>
                 {% if user.is_authenticated %}
-                    <div class="btn-group">
+                    <div class="">
                         <a class="btn btn-outline-light" href="{% url 'account' %}">{{ user.username }}</a>
-                        <a class="btn btn-outline-light" href="{% url 'logout' %}">Выйти</a>
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light">Выйти</button>
+                        </form>
                     </div>
                 {% else %}
                     <div class="btn-group">
