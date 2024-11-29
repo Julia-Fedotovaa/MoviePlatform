@@ -3,42 +3,43 @@
 {% block title %}Сложные запросы{% endblock %}
 
 {% block content %}
-    <h1 class="text-center">Сложные запросы</h1>
-<h2>Фильмы, длина которых меньше указанной, страна не заданная или не указана</h2>
-<div class="row row-cols-1 row-cols-md-5 g-2">
-    {% if movies %}
-        {% for movie in movies %}
-            {% include 'includes/movie_card.html' %}
-        {% endfor %}
-    {% else %}
-        <h4>Фильмов нет</h4>
-    {% endif %}
-</div>
+    <h1 class="text-center mb-4">Сложные запросы</h1>
+    <hr>
+    <h2 class="mb-4">Фильмы, длина которых меньше указанной, страна не заданная или не указана</h2>
+    <div class="row row-cols-1 row-cols-md-5 g-2">
+        {% if movies %}
+            {% for movie in movies %}
+                {% include 'includes/movie_card.html' %}
+            {% endfor %}
+        {% else %}
+            <h4>Фильмов нет</h4>
+        {% endif %}
+    </div>
 
-<hr class="mt-4">
+    <hr class="mt-4">
 
-<h2>Сериалы с количеством сезонов больше указанного и страной</h2>
-<div class="row row-cols-1 row-cols-md-5 g-2">
-    {% if tvshows %}
-        {% for tvshow in tvshows %}
-            {% include 'includes/tvshow_card.html' %}
-        {% endfor %}
-    {% else %}
-        <h4>Сериалов нет</h4>
-    {% endif %}
-</div>
+    <h2 class="mb-4">Сериалы с количеством сезонов больше указанного и страной</h2>
+    <div class="row row-cols-1 row-cols-md-5 g-2">
+        {% if tvshows %}
+            {% for tvshow in tvshows %}
+                {% include 'includes/tvshow_card.html' %}
+            {% endfor %}
+        {% else %}
+            <h4>Сериалов нет</h4>
+        {% endif %}
+    </div>
 
-<hr class="mt-4">
+    <hr class="mt-4">
 
-<h2>Медиа с оценкой вне указанного диапазона, страной и буквой в названии</h2>
-<div class="row row-cols-1 row-cols-md-5 g-2">
-    {% if reviews %}
-        {% for review in reviews %}
-            {% include 'includes/review_title.html' %}
-        {% endfor %}
-    {% else %}
-        <h4>Медиа нет</h4>
-    {% endif %}
-</div>
+    <h2 class="mb-4">Медиа с оценкой вне указанного диапазона, страной и буквой в названии</h2>
+    <div class="row row-cols-1 row-cols-md-5 g-2">
+        {% if reviews %}
+            {% for review in reviews %}
+                {% include 'includes/review_title.html' %}
+            {% endfor %}
+        {% else %}
+            <h4>Медиа нет</h4>
+        {% endif %}
+    </div>
 
 {% endblock %}

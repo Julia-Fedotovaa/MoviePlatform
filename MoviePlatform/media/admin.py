@@ -1,26 +1,12 @@
 from django.contrib import admin
-from import_export import resources
 from import_export.admin import ExportMixin
+from import_export.formats.base_formats import JSON, CSV, XLSX
 from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Country, Genre, Movie, TVShow, Rating
-
+from .resources import MovieResource, TVShowResource
 
 app_name = 'Медиа'
-
-
-class MovieResource(resources.ModelResource):
-    def get_export_queryset(self, queryset):
-        return queryset.filter(is_published=True)
-
-    def dehydrate_title(self, movie):
-        return f"Фильм: {movie.title}"
-
-    def dehydrate_release_date(self, movie):
-        return movie.release_date.strftime('%d-%m-%Y')
-
-    def get_genres(self, movie):
-        return ", ".join(genre.name for genre in movie.genres.all())
 
 
 @admin.register(Movie)
@@ -29,27 +15,13 @@ class MovieAdmin(ExportMixin, SimpleHistoryAdmin):
     list_filter = ('country', 'genres')
     search_fields = ('title', 'country')
     ordering = ('title', 'release_date')
+    resource_class = MovieResource
+    formats = (JSON, CSV, XLSX)
 
     def get_genres(self, obj):
         return ", ".join(genre.name for genre in obj.genres.all())
 
     get_genres.short_description = 'Жанры'
-
-
-class TVShowResource(resources.ModelResource):
-    fields = ('title', 'release_date', 'country', 'seasons_count', 'get_genres')
-
-    def get_export_queryset(self, queryset):
-        return queryset.filter(seasons_count__gt=3)
-
-    def dehydrate_title(self, tvshow):
-        return f"Сериал: {tvshow.title}"
-
-    def dehydrate_release_date(self, tvshow):
-        return tvshow.release_date.strftime('%d-%m-%Y')
-
-    def get_genres(self, tvshow):
-        return ", ".join(genre.name for genre in tvshow.genres.all())
 
 
 @admin.register(TVShow)
@@ -58,6 +30,8 @@ class TVShowAdmin(ExportMixin, SimpleHistoryAdmin):
     list_filter = ('country', 'genres')
     search_fields = ('title', 'country')
     ordering = ('title', 'release_date')
+    resource_class = TVShowResource
+    formats = (JSON, CSV, XLSX)
 
 
 @admin.register(Rating)
