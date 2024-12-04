@@ -12,7 +12,8 @@ def populate_countries(sender, **kwargs):
             'Норвегия', 'Финляндия', 'Бельгия', 'Голландия', 'Польша', 'Чехия', 'Словакия', 'Украина', 'Беларусь',
         ]
 
-        Country.objects.all().delete()
+        if Country.objects.exists():
+            return
 
         for country in countries:
             Country.objects.get_or_create(name=country)

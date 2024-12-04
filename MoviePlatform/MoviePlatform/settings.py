@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-q62cr(p&(zf=6f^=k3r75kk4oular0q(r2ts-fo16s8jcb06=-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mysite.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account.apps.AccountConfig',
+    'accounts.apps.AccountsConfig',
     'media.apps.MediaConfig',
     'rest_framework',
     'django_filters',
@@ -44,7 +44,12 @@ INSTALLED_APPS = [
     'drf_yasg',
     'api.apps.ApiConfig',
     'django_bootstrap5',
+    'django.contrib.sites',
+    'social_django',
+    'django_extensions',
 ]
+
+SITE_ID = 1
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -63,7 +68,20 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
+]
+
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 ROOT_URLCONF = 'MoviePlatform.urls'
 

@@ -1,14 +1,14 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Avg, Q
 
-from .validators import validate_rating, release_date_validator
+from .validators import validate_rating, release_date_validator, validate_title
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from simple_history.models import HistoricalRecords
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name='Название')
+    name = models.CharField(max_length=100, unique=True, verbose_name='Название', validators=[validate_title])
 
     def __str__(self):
         return self.name
@@ -19,7 +19,7 @@ class Genre(models.Model):
 
 
 class Country(models.Model):
-    name = models.CharField(max_length=30, unique=True, verbose_name='Название')
+    name = models.CharField(max_length=30, unique=True, verbose_name='Название', validators=[validate_title])
 
     def __str__(self):
         return self.name
@@ -30,7 +30,7 @@ class Country(models.Model):
 
 
 class AbstractMedia(PolymorphicModel):
-    title = models.CharField(max_length=100, verbose_name='Название')
+    title = models.CharField(max_length=100, verbose_name='Название', validators=[validate_title])
     description = models.TextField(verbose_name='Описание')
     poster = models.ImageField(upload_to='posters/', verbose_name='Постер')
     release_date = models.DateField(verbose_name='Дата выхода', validators=[release_date_validator])

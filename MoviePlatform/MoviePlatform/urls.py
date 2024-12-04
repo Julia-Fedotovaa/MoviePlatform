@@ -22,7 +22,7 @@ from drf_yasg.views import get_schema_view
 
 from MoviePlatform import settings
 
-schema_view = get_schema_view(
+SchemaView = get_schema_view(
     openapi.Info(
         title="Movie Platform API",
         default_version='v1',
@@ -35,12 +35,14 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('accounts/', include('account.urls')),
+    path('account/', include('accounts.urls')),
     path('', include('media.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-schema'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-schema'),
+    path('swagger', SchemaView.with_ui('swagger', cache_timeout=0), name='swagger-schema'),
+    path('redoc/', SchemaView.with_ui('redoc', cache_timeout=0), name='redoc-schema'),
+    path('social-auth/',
+         include('social_django.urls', namespace='social')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

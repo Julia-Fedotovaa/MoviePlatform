@@ -1,7 +1,11 @@
-﻿{% extends 'base.html' %}
-{% block title %}Вход{% endblock %}
+﻿{% extends "base.html" %}
+{% block title %}Вход через соцсети{% endblock %}
 {% block content %}
-    <h1>Вход</h1>
+    <h1>Вход через соцсети</h1>
+    <h2>Или стандартный вход</h2>
+    <a href="{% url "social:begin" "google-oauth2" %}">
+        Sign in with Google
+    </a>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

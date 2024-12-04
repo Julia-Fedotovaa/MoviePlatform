@@ -10,26 +10,20 @@ class MediaView(TemplateView):
     context_object_name = 'media'
 
     def get_context_data(self, **kwargs):
-        # Получаем контекст из родительского класса
         context = super().get_context_data(**kwargs)
 
-        # Получаем все ТВ-шоу и фильмы
         tvshows_list = TVShow.objects.all()
         movies_list = Movie.objects.all()
 
-        # Создаем пагинаторы
-        tvshows_paginator = Paginator(tvshows_list, 5)  # 10 объектов на странице
-        movies_paginator = Paginator(movies_list, 5)  # 10 объектов на странице
+        tvshows_paginator = Paginator(tvshows_list, 5)
+        movies_paginator = Paginator(movies_list, 5)
 
-        # Получаем номер текущей страницы
         tvshows_page_number = self.request.GET.get('tvshows_page')
         movies_page_number = self.request.GET.get('movies_page')
 
-        # Получаем объекты для текущей страницы
         tvshows_page = tvshows_paginator.get_page(tvshows_page_number)
         movies_page = movies_paginator.get_page(movies_page_number)
 
-        # Добавляем пагинированные объекты в контекст
         context['tvshows'] = tvshows_page
         context['movies'] = movies_page
         context['high_rated_movies'] = Movie.get_high_rated()[0:3]

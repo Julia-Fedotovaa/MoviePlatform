@@ -1,3 +1,4 @@
+"""Модуль административной панели приложения media."""
 from django.contrib import admin
 from import_export.admin import ExportMixin
 from import_export.formats.base_formats import JSON, CSV, XLSX
@@ -11,6 +12,9 @@ app_name = 'Медиа'
 
 @admin.register(Movie)
 class MovieAdmin(ExportMixin, SimpleHistoryAdmin):
+    """
+    Административная панель для моделей приложения media.
+    """
     list_display = ('title', 'release_date', 'country', 'length', 'get_genres')
     list_filter = ('country', 'genres')
     search_fields = ('title', 'country')

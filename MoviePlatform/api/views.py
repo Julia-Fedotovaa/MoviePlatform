@@ -71,8 +71,8 @@ class MovieViewSet(viewsets.ModelViewSet):
 
 
 class TVShowFilter(django_filters.FilterSet):
-    release_date = django_filters.DateFromToRangeFilter(field_name='release_date')  # фильтр по дате
-    country = django_filters.CharFilter(field_name='country__name', lookup_expr='icontains')  # фильтр по стран
+    release_date = django_filters.DateFromToRangeFilter(field_name='release_date')
+    country = django_filters.CharFilter(field_name='country__name', lookup_expr='icontains')
 
     class Meta:
         model = TVShow

@@ -11,7 +11,7 @@ def validate_title(value):
 
 def validate_rating(value):
     if value < 1 or value > 5:
-        raise ValidationError("Рейтинг должен быть в диапазоне от 1 до 10.")
+        raise ValidationError("Рейтинг должен быть в диапазоне от 1 до 5.")
 
     return value
 
