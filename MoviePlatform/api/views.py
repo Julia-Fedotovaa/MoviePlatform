@@ -1,4 +1,5 @@
 import django_filters
+from django.core.cache import cache
 from django.db.models import Q, Avg
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -35,26 +36,39 @@ class MovieViewSet(viewsets.ModelViewSet):
     sorting_fields = ['title', 'release_date', 'rating']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         user = self.request.user
-        country = Country.objects.filter(name=self.request.query_params.get('country')).first()
+        country_name = self.request.query_params.get('country')
+        cache_key = f'movie_queryset_{user.id}_{country_name}'
+        cached_data = cache.get(cache_key)
 
-        if country:
-            queryset = queryset.filter(country=country)
+        if not cached_data:
+            queryset = super().get_queryset()
+            if country_name:
+                country = Country.objects.filter(name=country_name).first()
+                if country:
+                    queryset = queryset.filter(country=country)
 
-        if user.is_authenticated:
-            return queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
-        return queryset
+            if user.is_authenticated:
+                queryset = queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
+            cached_data = list(queryset)
+            cache.set(cache_key, cached_data, timeout=60 * 10)  # Кэшируем на 10 минут
+
+        return cached_data
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
-        high_rated_movies = Movie.objects.annotate(
-            average_rating=Avg('abstractmedia_ptr__rating__rating')
-        ).filter(average_rating__gt=4.0)
+        cache_key = 'high_rated_movies'
+        cached_data = cache.get(cache_key)
 
-        serializer = self.get_serializer(high_rated_movies, many=True)
+        if not cached_data:
+            high_rated_movies = Movie.objects.annotate(
+                average_rating=Avg('abstractmedia_ptr__rating__rating')
+            ).filter(average_rating__gt=4.0)
+            serializer = self.get_serializer(high_rated_movies, many=True)
+            cached_data = serializer.data
+            cache.set(cache_key, cached_data, timeout=60 * 15)
 
-        return Response(serializer.data)
+        return Response(cached_data)
 
     @action(methods=['POST'], detail=True)
     def add_rating(self, request, pk=None):
@@ -90,13 +104,18 @@ class TVShowViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
-        high_rated_tvshows = TVShow.objects.annotate(
-            average_rating=Avg('abstractmedia_ptr__rating__rating')
-        ).filter(average_rating__gt=4.0)
+        cache_key = 'high_rated_tvshows'
+        cached_data = cache.get(cache_key)
 
-        serializer = self.get_serializer(high_rated_tvshows, many=True)
+        if not cached_data:
+            high_rated_tvshows = TVShow.objects.annotate(
+                average_rating=Avg('abstractmedia_ptr__rating__rating')
+            ).filter(average_rating__gt=4.0)
+            serializer = self.get_serializer(high_rated_tvshows, many=True)
+            cached_data = serializer.data
+            cache.set(cache_key, cached_data, timeout=60 * 15)  # Кэшируем на 15 минут
 
-        return Response(serializer.data)
+        return Response(cached_data)
 
     @action(methods=['POST'], detail=True)
     def add_rating(self, request, pk=None):
@@ -110,6 +129,26 @@ class TVShowViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response({'error': 'Rating value is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self):
+        user = self.request.user
+        country_name = self.request.query_params.get('country')
+        cache_key = f'tvshow_queryset_{user.id}_{country_name}'
+        cached_data = cache.get(cache_key)
+
+        if not cached_data:
+            queryset = super().get_queryset()
+            if country_name:
+                country = Country.objects.filter(name=country_name).first()
+                if country:
+                    queryset = queryset.filter(country=country)
+
+            if user.is_authenticated:
+                queryset = queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
+            cached_data = list(queryset)
+            cache.set(cache_key, cached_data, timeout=60 * 10)
+
+        return cached_data
 
 
 class RatingViewSet(viewsets.ModelViewSet):

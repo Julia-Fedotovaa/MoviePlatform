@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import redirect
 from django.views.generic import ListView, TemplateView, DetailView, CreateView
@@ -12,8 +13,15 @@ class MediaView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        tvshows_list = TVShow.objects.all()
-        movies_list = Movie.objects.all()
+        tvshows_list = cache.get('tvshows_list')
+        if not tvshows_list:
+            tvshows_list = TVShow.objects.all()
+            cache.set('tvshows_list', tvshows_list, timeout=60 * 15)  # 15 минут
+
+        movies_list = cache.get('movies_list')
+        if not movies_list:
+            movies_list = Movie.objects.all()
+            cache.set('movies_list', movies_list, timeout=60 * 15)
 
         tvshows_paginator = Paginator(tvshows_list, 5)
         movies_paginator = Paginator(movies_list, 5)
@@ -26,8 +34,19 @@ class MediaView(TemplateView):
 
         context['tvshows'] = tvshows_page
         context['movies'] = movies_page
-        context['high_rated_movies'] = Movie.get_high_rated()[0:3]
-        context['high_rated_tvshows'] = TVShow.get_high_rated()[0:3]
+
+        high_rated_movies = cache.get('high_rated_movies')
+        if not high_rated_movies:
+            high_rated_movies = list(Movie.get_high_rated()[0:3])
+            cache.set('high_rated_movies', high_rated_movies, timeout=60 * 60)  # Кэширование на 1 час
+
+        high_rated_tvshows = cache.get('high_rated_tvshows')
+        if not high_rated_tvshows:
+            high_rated_tvshows = list(TVShow.get_high_rated()[0:3])
+            cache.set('high_rated_tvshows', high_rated_tvshows, timeout=60 * 60)
+
+        context['high_rated_movies'] = high_rated_movies
+        context['high_rated_tvshows'] = high_rated_tvshows
 
         return context
 
@@ -143,7 +162,7 @@ class ComplexQueriesView(TemplateView):
     context_object_name = 'tvshows'
 
     def get_context_data(
-        self, *, object_list = ..., **kwargs
+            self, *, object_list=..., **kwargs
     ):
         context = super().get_context_data(**kwargs)
 
