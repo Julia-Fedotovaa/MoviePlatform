@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,6 +49,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'social_django',
     'django_extensions',
+    'django_celery_beat',
+    'django_celery_results',
+    'mailhog',
 ]
 
 SITE_ID = 1
@@ -87,10 +92,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
 
 ROOT_URLCONF = 'MoviePlatform.urls'
 
@@ -104,6 +109,24 @@ CACHES = {
         'KEY_PREFIX': 'movieplatform',
     }
 }
+
+CELERY_BROKER_URL = 'redis://localhost:6379'  # Используем Redis как брокер задач
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_MODULES = ['tasks.tasks']
+CELERY_BEAT_SCHEDULE = {
+    'send_high_rated_media_to_users': {
+        'task': 'tasks.tasks.send_high_rated_media_to_users',
+        'schedule': crontab(minute='*'),  # Каждую минуту
+    },
+    'clean_empty_ratings': {
+        'task': 'tasks.tasks.clean_empty_ratings',
+        'schedule': crontab(minute='*'),  # Каждую минуту
+    },
+}
+
 
 TEMPLATES = [
     {
