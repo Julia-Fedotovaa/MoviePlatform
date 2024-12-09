@@ -7,5 +7,48 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    depends_on:
+      - celery
+      - redis
+      - mailhog
     environment:
       - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=MoviePlatform.settings
+      - REDIS_URL=redis://redis:6380
+      - EMAIL_HOST=mailhog
+
+  celery:
+    build: .
+    command: celery -A MoviePlatform worker --loglevel=info -P gevent
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=MoviePlatform.settings
+      - REDIS_URL=redis://redis:6380
+    working_dir: /MoviePlatform/MoviePlatform
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+    ports:
+      - "6380:6380"
+    command: [ "redis-server", "--port", "6380" ]
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8003:1025"
+      - "8100:8025"
+    working_dir: /MoviePlatform/MoviePlatform
+    restart: always
+
+  celerybeat:
+    build: .
+    command: celery -A MoviePlatform beat --loglevel=info
+    depends_on:
+      - redis
+      - web
+    environment:
+      - DJANGO_SETTINGS_MODULE=MoviePlatform.settings
+      - REDIS_URL=redis://redis:6380
+    working_dir: /MoviePlatform/MoviePlatform

@@ -11,7 +11,8 @@ app = Celery('MoviePlatform')
 
 app.conf.update(
     broker_connection_retry_on_startup=True,
-    broker_url='redis://localhost:6379/0'
+    broker_url='redis://redis:6380',
+    result_backend='redis://redis:6380',
 )
 
 app.config_from_object('django.conf:settings', namespace='CELERY')

@@ -88,21 +88,23 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
+E_HOST = os.getenv('EMAIL_HOST', 'localhost')
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
+EMAIL_HOST = E_HOST
+EMAIL_PORT = 8003
 EMAIL_USE_TLS = False
-EMAIL_USE_SSL = False
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 
-
 ROOT_URLCONF = 'MoviePlatform.urls'
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6380/1')
 
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
@@ -110,8 +112,8 @@ CACHES = {
     }
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379'  # Используем Redis как брокер задач
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
