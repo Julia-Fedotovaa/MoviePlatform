@@ -162,7 +162,7 @@ class RatingViewSet(viewsets.ModelViewSet):
 
 class ComplexQueryViewFirst(viewsets.ViewSet):
     def list(self, request):
-        queryset = Movie.objects.filter(
+        queryset = Movie.objects.select_related("country").filter(
             Q(title__icontains="a") |
             (~Q(country__name="USA") & Q(length__lt="02:00:00"))
         )
@@ -174,7 +174,7 @@ class ComplexQueryViewFirst(viewsets.ViewSet):
 
 class ComplexQueryViewSecond(viewsets.ViewSet):
     def list(self, request):
-        queryset = Rating.objects.filter(
+        queryset = Rating.objects.select_related("media__country", "media").filter(
             ~Q(rating__range=(1, 3)) & Q(media__title__icontains="a") | Q(media__country__name="Japan"))
 
         serializer = RatingSerializer(queryset, many=True)

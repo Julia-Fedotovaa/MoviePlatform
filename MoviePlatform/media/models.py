@@ -66,7 +66,7 @@ class Movie(AbstractMedia):
         """
         Получение фильмов, длина которых меньше указанной и страна не указана.
         """
-        return cls.objects.filter(
+        return cls.objects.select_related('country').filter(
             Q(length__lt=max_length) &
             ~Q(country__name=exclude_country) | Q(country=None)
         )
@@ -103,7 +103,7 @@ class TVShow(AbstractMedia):
         """
         Получение сериалов с количеством сезонов больше указанного и страной.
         """
-        return cls.objects.filter(
+        return cls.objects.select_related('country').filter(
             Q(seasons_count__gt=min_seasons_count) &
             Q(country__name=country)
         )
@@ -143,7 +143,7 @@ class Rating(models.Model):
         """
         Получение медиа с оценкой вне указанного диапазона, страной и названием.
         """
-        return cls.objects.filter(
+        return cls.objects.select_related('media__country', 'media').filter(
             ~Q(rating__range=rating_range) &
             Q(media__country__name=country) &
             Q(media__title__icontains=title_contains)
