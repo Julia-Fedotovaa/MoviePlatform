@@ -1,10 +1,12 @@
-﻿from django.db.models.signals import post_migrate
+﻿"""Модуль для сигналов модели Country"""
+from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from .models import Country
 
 
 @receiver(post_migrate)
 def populate_countries(sender, **kwargs):
+    """Функция для заполнения модели Country"""
     if sender.name == 'media':
         countries = [
             'Австралия', 'Франция', 'США', 'Великобритания', 'Индия', 'Китай', 'Россия', 'Япония', 'Германия',

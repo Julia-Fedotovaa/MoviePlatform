@@ -6,18 +6,21 @@ from .validators import validate_title
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre"""
     class Meta:
         model = Genre
         fields = '__all__'
 
 
 class CountrySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Country"""
     class Meta:
         model = Country
         fields = '__all__'
 
 
 class MovieSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Movie"""
     title = serializers.CharField(validators=[validate_title])
     genres = GenreSerializer(many=True)
     country = CountrySerializer()
@@ -28,6 +31,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
 
 class TVShowSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели TVShow"""
     title = serializers.CharField(validators=[validate_title])
     genres = GenreSerializer(many=True)
     country = CountrySerializer()
@@ -38,6 +42,7 @@ class TVShowSerializer(serializers.ModelSerializer):
 
 
 class RatingSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Rating"""
     media = serializers.SerializerMethodField(read_only=True)
     media_choice = serializers.ChoiceField(
         choices=[],
@@ -60,6 +65,7 @@ class RatingSerializer(serializers.ModelSerializer):
         self.fields['media_choice'].choices = media_choices
 
     def get_media(self, obj):
+        """Метод для получения сериализованных данных медиа"""
         try:
             if obj.media.get_media_type() == ContentType.objects.get_for_model(Movie):
                 print(MovieSerializer(obj.media).data)
@@ -76,6 +82,7 @@ class RatingSerializer(serializers.ModelSerializer):
             return None
 
     def validate_media_choice(self, value):
+        """Метод для валидации выбора медиа"""
         try:
             media_type, media_id = value.split('-')
             media_id = int(media_id)
@@ -94,6 +101,7 @@ class RatingSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        """Метод для создания рейтинга"""
         media_type, media_id = validated_data.pop('media_choice').split('-')
         media = None
         if media_type == "movie":

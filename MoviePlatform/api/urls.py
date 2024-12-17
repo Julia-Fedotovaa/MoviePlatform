@@ -1,4 +1,5 @@
-﻿from rest_framework import routers
+﻿"""Модуль urls для приложения api"""
+from rest_framework import routers
 
 from api import views
 

@@ -1,3 +1,4 @@
+"""Модели приложения media"""
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Avg, Q
 
@@ -8,28 +9,35 @@ from simple_history.models import HistoricalRecords
 
 
 class Genre(models.Model):
+    """Модель для жанра"""
     name = models.CharField(max_length=100, unique=True, verbose_name='Название', validators=[validate_title])
 
     def __str__(self):
+        """Строковое представление объекта"""
         return self.name
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
 class Country(models.Model):
+    """Модель для страны"""
     name = models.CharField(max_length=30, unique=True, verbose_name='Название', validators=[validate_title])
 
     def __str__(self):
+        """Строковое представление объекта"""
         return self.name
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Страна'
         verbose_name_plural = 'Страны'
 
 
 class AbstractMedia(PolymorphicModel):
+    """Абстрактная модель для медиа"""
     title = models.CharField(max_length=100, verbose_name='Название', validators=[validate_title])
     description = models.TextField(verbose_name='Описание')
     poster = models.ImageField(upload_to='posters/', verbose_name='Постер')
@@ -38,18 +46,22 @@ class AbstractMedia(PolymorphicModel):
     genres = models.ManyToManyField(Genre, verbose_name='Жанры')
 
     def __str__(self):
+        """Строковое представление объекта"""
         return self.title
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Медиа'
         verbose_name_plural = 'Медиа'
 
 
 class Movie(AbstractMedia):
+    """Модель для фильма"""
     history = HistoricalRecords()
     length = models.TimeField(verbose_name='Продолжительность')
 
     def get_media_type(self):
+        """Метод для получения типа медиа"""
         return ContentType.objects.get_for_model(self)
 
     @classmethod
@@ -72,20 +84,25 @@ class Movie(AbstractMedia):
         )
 
     def get_average_rating(self):
+        """Метод для получения среднего рейтинга"""
         return self.rating_set.aggregate(Avg('rating'))['rating__avg']
 
     def reviews(self):
+        """Метод для получения отзывов"""
         return self.rating_set.all()
 
     def __str__(self):
+        """Строковое представление объекта"""
         return self.title + ' (' + str(self.release_date.year) + ')' + str([genre.name for genre in self.genres.all()])
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Фильм'
         verbose_name_plural = 'Фильмы'
 
 
 class TVShow(AbstractMedia):
+    """Модель для сериала"""
     history = HistoricalRecords()
     seasons_count = models.PositiveIntegerField(verbose_name='Количество сезонов')
 
@@ -109,23 +126,29 @@ class TVShow(AbstractMedia):
         )
 
     def get_average_rating(self):
+        """Метод для получения среднего рейтинга"""
         return self.rating_set.aggregate(Avg('rating'))['rating__avg']
 
     def get_media_type(self):
+        """Метод для получения типа медиа"""
         return ContentType.objects.get_for_model(self)
 
     def reviews(self):
+        """Метод для получения отзывов"""
         return self.rating_set.all()
 
     def __str__(self):
+        """Строковое представление объекта"""
         return self.title
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Сериал'
         verbose_name_plural = 'Сериалы'
 
 
 class Rating(models.Model):
+    """Модель для рейтинга"""
     user = models.ForeignKey(
         'auth.User', on_delete=models.CASCADE,
         verbose_name='Пользователь'
@@ -150,8 +173,10 @@ class Rating(models.Model):
         )
 
     def __str__(self):
+        """Строковое представление объекта"""
         return f"{self.user} - {self.media} - {self.rating}"
 
     class Meta:
+        """Метаданные модели"""
         verbose_name = 'Рейтинг'
         verbose_name_plural = 'Рейтинги'

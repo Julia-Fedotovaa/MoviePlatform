@@ -1,4 +1,5 @@
-﻿from django.urls import path
+﻿"""Модуль, отвечающий за маршрутизацию приложения media."""
+from django.urls import path
 
 from media import views
 

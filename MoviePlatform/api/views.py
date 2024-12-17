@@ -1,3 +1,4 @@
+"""Модуль для работы с представлениями"""
 import django_filters
 from django.core.cache import cache
 from django.db.models import Q, Avg
@@ -12,6 +13,7 @@ from media.serializer import GenreSerializer, CountrySerializer, MovieSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):
+    """Класс для работы с моделью Genre"""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     sorting_fields = ['name']
@@ -20,6 +22,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CountryViewSet(viewsets.ModelViewSet):
+    """Класс для работы с моделью Country"""
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     sorting_fields = ['name']
@@ -28,6 +31,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 
 
 class MovieViewSet(viewsets.ModelViewSet):
+    """Класс для работы с моделью Movie"""
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
@@ -36,6 +40,7 @@ class MovieViewSet(viewsets.ModelViewSet):
     sorting_fields = ['title', 'release_date', 'rating']
 
     def get_queryset(self):
+        """Метод для получения списка фильмов"""
         user = self.request.user
         country_name = self.request.query_params.get('country')
         cache_key = f'movie_queryset_{user.id}_{country_name}'
@@ -52,11 +57,15 @@ class MovieViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
             cached_data = list(queryset)
             cache.set(cache_key, cached_data, timeout=60 * 10)  # Кэшируем на 10 минут
+        else:
+            # make queryset from cached data
+            cached_data = Movie.objects.filter(id__in=[movie.id for movie in cached_data])
 
         return cached_data
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
+        """Метод для получения списка фильмов с высоким рейтингом"""
         cache_key = 'high_rated_movies'
         cached_data = cache.get(cache_key)
 
@@ -67,11 +76,15 @@ class MovieViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(high_rated_movies, many=True)
             cached_data = serializer.data
             cache.set(cache_key, cached_data, timeout=60 * 15)
+        else:
+            # make queryset from cached data
+            cached_data = Movie.objects.filter(id__in=[movie['id'] for movie in cached_data])
 
         return Response(cached_data)
 
     @action(methods=['POST'], detail=True)
     def add_rating(self, request, pk=None):
+        """Метод для добавления рейтинга к фильму"""
         movie = self.get_object()
         rating_value = request.data.get('rating')
 
@@ -85,6 +98,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
 
 class TVShowFilter(django_filters.FilterSet):
+    """Фильтр для модели TVShow"""
     release_date = django_filters.DateFromToRangeFilter(field_name='release_date')
     country = django_filters.CharFilter(field_name='country__name', lookup_expr='icontains')
 
@@ -94,6 +108,7 @@ class TVShowFilter(django_filters.FilterSet):
 
 
 class TVShowViewSet(viewsets.ModelViewSet):
+    """Класс для работы с моделью TVShow"""
     queryset = TVShow.objects.all()
     serializer_class = TVShowSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
@@ -104,6 +119,7 @@ class TVShowViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def high_rated(self, request):
+        """Метод для получения списка сериалов с высоким рейтингом"""
         cache_key = 'high_rated_tvshows'
         cached_data = cache.get(cache_key)
 
@@ -114,11 +130,15 @@ class TVShowViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(high_rated_tvshows, many=True)
             cached_data = serializer.data
             cache.set(cache_key, cached_data, timeout=60 * 15)  # Кэшируем на 15 минут
+        else:
+            # make queryset from cached data
+            cached_data = TVShow.objects.filter(id__in=[tvshow['id'] for tvshow in cached_data])
 
         return Response(cached_data)
 
     @action(methods=['POST'], detail=True)
     def add_rating(self, request, pk=None):
+        """Метод для добавления рейтинга к сериалу"""
         tvshow = self.get_object()
         rating_value = request.data.get('rating')
 
@@ -131,6 +151,7 @@ class TVShowViewSet(viewsets.ModelViewSet):
         return Response({'error': 'Rating value is required'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
+        """Метод для получения списка сериалов"""
         user = self.request.user
         country_name = self.request.query_params.get('country')
         cache_key = f'tvshow_queryset_{user.id}_{country_name}'
@@ -147,11 +168,15 @@ class TVShowViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(Q(rating__user=user) | Q(rating__isnull=True))
             cached_data = list(queryset)
             cache.set(cache_key, cached_data, timeout=60 * 10)
+        else:
+            # make queryset from cached data
+            cached_data = TVShow.objects.filter(id__in=[tvshow.id for tvshow in cached_data])
 
         return cached_data
 
 
 class RatingViewSet(viewsets.ModelViewSet):
+    """Класс для работы с моделью Rating"""
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
     sorting_fields = ['rating']
@@ -161,6 +186,8 @@ class RatingViewSet(viewsets.ModelViewSet):
 
 
 class ComplexQueryViewFirst(viewsets.ViewSet):
+    """Класс для выполнения сложных запросов к моделям Movie и Country"""
+
     def list(self, request):
         queryset = Movie.objects.select_related("country").filter(
             Q(title__icontains="a") |
@@ -173,6 +200,8 @@ class ComplexQueryViewFirst(viewsets.ViewSet):
 
 
 class ComplexQueryViewSecond(viewsets.ViewSet):
+    """Класс для выполнения сложных запросов к моделям Rating и Media"""
+
     def list(self, request):
         queryset = Rating.objects.select_related("media__country", "media").filter(
             ~Q(rating__range=(1, 3)) & Q(media__title__icontains="a") | Q(media__country__name="Japan"))

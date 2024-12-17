@@ -1,4 +1,5 @@
-﻿from celery import shared_task
+﻿"""Модуль задач Celery"""
+from celery import shared_task
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
@@ -7,8 +8,8 @@ from media.models import Movie, TVShow, Rating
 
 @shared_task
 def send_high_rated_media_to_users():
-    """Отправка списка медиа с высоким рейтингом."""
-    threshold = 4.0  # Порог рейтинга
+    """Отправка списка медиа с высоким рейтингом"""
+    threshold = 4.0
     movies = Movie.get_high_rated(threshold)
     tvshows = TVShow.get_high_rated(threshold)
     print('aaaaaa')
@@ -39,6 +40,6 @@ def send_high_rated_media_to_users():
 
 @shared_task
 def clean_empty_ratings():
-    """Удаление рейтингов без связанного медиа."""
+    """Удаление рейтингов без связанного медиа"""
     deleted_count, _ = Rating.objects.filter(media__isnull=True).delete()
     return f"Удалено {deleted_count} записей без медиа."
