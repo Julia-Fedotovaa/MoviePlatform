@@ -1,0 +1,25 @@
+﻿<div class="col">
+    <div class="card h-100">
+        {#        make image small#}
+        <img src="../../static{{ media.poster.url }}" class="card-img-top" alt="{{ media.title }}"
+             style="max-height: 300px; min-height: 300px; object-fit: cover; object-position: top;">
+        <div class="card-body">
+            <h5 class="card-title mb-3">{{ media.title }}</h5>
+        
+            <h6 class="card-subtitle mb-2 text-muted">
+                {% for genre in media.genres.all %}
+                    {{ genre.name }}
+                    {% if not forloop.last %}| {% endif %}
+                {% endfor %}
+
+            </h6>
+            <p class="card-text">{{ media.description|truncatechars:100 }}</p>
+        </div>
+
+        <a href="{% url 'media_detail' media.id %}" class="text-decoration-none text-reset">
+        <div class="card-footer text-center">
+            Подробнее
+        </div>
+        </a>
+    </div>
+</div>

@@ -15,11 +15,7 @@
     <div class="row row-cols-1 row-cols-md-5 g-2">
         {% if media %}
             {% for item in media %}
-                {% if item.type == 'movie' %}
-                    {% include 'includes/movie_card.html' with movie=item %}
-                {% elif item.type == 'tvshow' %}
-                    {% include 'includes/tvshow_card.html' with tvshow=item %}
-                {% endif %}
+                {% include 'includes/media_card.html' with media=item %}
             {% endfor %}
         {% else %}
             <h4>Нет доступного контента</h4>
