@@ -1,10 +1,17 @@
 """Модуль административной панели приложения media"""
+from io import BytesIO
+
 from django.contrib import admin
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.db import models
 from django.forms.widgets import CheckboxSelectMultiple, DateInput
+from django.http import HttpResponse
 from import_export.admin import ExportMixin
 from import_export.formats.base_formats import JSON, CSV, XLSX
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Country, Genre, Movie, TVShow, Rating, Media, MediaGenre
@@ -94,6 +101,31 @@ class MediaAdmin(admin.ModelAdmin):
         return ", ".join(genre.name for genre in obj.genres.all())
 
     get_genres.short_description = 'Жанры'
+
+    def generate_pdf(self, request, queryset):
+        """Метод для генерации PDF для каждого объекта"""
+        for media in queryset:
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename={media.title}.pdf'
+
+            buffer = BytesIO()
+            p = canvas.Canvas(buffer, pagesize=letter)
+            pdfmetrics.registerFont(TTFont('DejaVuSans', 'static/fonts/DejaVuSans.ttf'))
+            p.setFont('DejaVuSans', 12)
+            p.drawString(100, 750, f'Title: {media.title}')
+            p.drawString(100, 730, f'Release Date: {media.release_date}')
+            p.drawString(100, 710, f'Country: {media.country.name}')
+            p.drawString(100, 690, f'Genres: {", ".join(genre.name for genre in media.genres.all())}')
+            p.showPage()
+            p.save()
+
+            buffer.seek(0)
+            response.write(buffer.read())
+            return response
+
+    generate_pdf.short_description = 'Generate PDF for selected Media'
+
+    actions = [generate_pdf]
 
 
 @admin.register(MediaGenre)

@@ -14,11 +14,14 @@
                 {% for genre in media.genres.all %}{{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
             <p>Тип: {% if media.type == 'movie' %}Фильм{% else %}Сериал{% endif %}</p>
             <p>Страна: {{ media.country }}</p>
-        <p>Оценка: {{ media.rating|rating_to_stars }}</p>
+            <p>Оценка: {{ media.rating|rating_to_stars }}</p>
+            <p>URL: {% if media.url %}<a href="{{ media.url }}" target="_blank">{{ media.url }}</a>{% else %}Нет{% endif %}</p>
+            <p>Скачать доп файл: {% if media.file %}<a href="{{ media.file.url }}" target="_blank">Скачать</a>{% else %}Нет{% endif %}</p>
         </div>
 
         <div class="col">
-            <img src="../../static{{ media.poster.url }}" alt="{{ media.title }}" class="img-fluid" style="max-height: 500px;">
+            <img src="../../static{{ media.poster.url }}" alt="{{ media.title }}" class="img-fluid"
+                 style="max-height: 500px;">
         </div>
     </div>
 

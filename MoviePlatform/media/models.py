@@ -59,6 +59,8 @@ class Media(models.Model):
     type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
     poster = models.ImageField(upload_to='media_posters/', blank=True, null=True)
     rating = models.IntegerField(default=0, validators=[validate_rating], blank=True, null=True)
+    file = models.FileField(upload_to='media_files/', blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
 
     objects = MediaManager()
 
@@ -76,16 +78,13 @@ class Media(models.Model):
             raise ValidationError("Rating must be between 0 and 10")
         return self.rating
 
-    def save(self, commit=True):
-        # Дополнительная логика перед сохранением, например, можно обновить дату выпуска
+    def save(self, *args, **kwargs):
+        # Дополнительная логика перед сохранением
         if not self.release_date:
             self.release_date = timezone.now()
 
         # Сохраняем объект в базу данных
-        if commit:
-            super().save(commit=True)
-        else:
-            return super().save(commit=False)
+        super(Media, self).save(*args, **kwargs)
 
 
 class MediaGenre(models.Model):
