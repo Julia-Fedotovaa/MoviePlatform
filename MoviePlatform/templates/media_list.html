@@ -1,0 +1,47 @@
+﻿{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block title %}Все медиа{% endblock %}
+
+{% block content %}
+    <div class="row align-items-center mb-3">
+        <div class="col">
+            <h1>Все медиа</h1>
+            <h5>Всего медиа: {% media_count %}</h5>
+            <h5>Рейтинг медиа: {% top_rated_media %}</h5>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-5 g-2">
+        {% if media %}
+            {% for item in media %}
+                {% if item.type == 'movie' %}
+                    {% include 'includes/movie_card.html' with movie=item %}
+                {% elif item.type == 'tvshow' %}
+                    {% include 'includes/tvshow_card.html' with tvshow=item %}
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <h4>Нет доступного контента</h4>
+        {% endif %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination mt-4">
+        <span class="step-links">
+            {% if media.has_previous %}
+                <a href="?page=1">&laquo; первая</a>
+                <a href="?page={{ media.previous_page_number }}">предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ media.number }} из {{ media.paginator.num_pages }}.
+            </span>
+
+            {% if media.has_next %}
+                <a href="?page={{ media.next_page_number }}">следующая</a>
+                <a href="?page={{ media.paginator.num_pages }}">последняя &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

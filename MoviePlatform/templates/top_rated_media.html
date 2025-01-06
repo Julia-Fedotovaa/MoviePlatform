@@ -1,0 +1,5 @@
+﻿{% load custom_tags %}
+
+{% for media in top_media %}
+    <li>{{ media.title }} - {{ media.rating|rating_to_stars }}</li>
+{% endfor %}

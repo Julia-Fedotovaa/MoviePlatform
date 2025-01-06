@@ -4,7 +4,7 @@ from import_export.admin import ExportMixin
 from import_export.formats.base_formats import JSON, CSV, XLSX
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Country, Genre, Movie, TVShow, Rating
+from .models import Country, Genre, Movie, TVShow, Rating, Media
 from .resources import MovieResource, TVShowResource
 
 app_name = 'Медиа'
@@ -69,3 +69,18 @@ class GenreAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     ordering = ('name',)
+
+
+@admin.register(Media)
+class MediaAdmin(admin.ModelAdmin):
+    """Административная панель для модели Media"""
+    list_display = ('title', 'release_date', 'country', 'get_genres')
+    list_filter = ('country', 'genres')
+    search_fields = ('title', 'country')
+    ordering = ('title', 'release_date')
+
+    def get_genres(self, obj):
+        """Получение жанров медиа"""
+        return ", ".join(genre.name for genre in obj.genres.all())
+
+    get_genres.short_description = 'Жанры'

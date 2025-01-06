@@ -1,10 +1,31 @@
 """Модуль представлений приложения media"""
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.shortcuts import redirect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView
 
-from media.models import Movie, TVShow, Country, Genre, Rating
+from media.models import Movie, TVShow, Country, Genre, Rating, Media
+
+
+def media_list_view(request):
+    media_list = Media.objects.all()
+
+    paginator = Paginator(media_list, 5)
+    page = request.GET.get('page')
+
+    try:
+        media = paginator.page(page)
+    except PageNotAnInteger:
+        media = paginator.page(1)
+    except EmptyPage:
+        media = paginator.page(paginator.num_pages)
+
+    return render(request, 'media_list.html', {'media': media})
+
+
+def media_detail_view(request, pk):
+    media = get_object_or_404(Media, pk=pk)
+    return render(request, 'media_detail.html', {'media': media})
 
 
 class MediaView(TemplateView):
