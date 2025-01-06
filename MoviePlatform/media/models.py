@@ -1,5 +1,6 @@
 """Модели приложения media"""
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import Avg, Q
 from django.urls.base import reverse
 from django.utils import timezone
@@ -23,6 +24,7 @@ class MediaManager(models.Manager):
 class Genre(models.Model):
     """Модель для жанра"""
     name = models.CharField(max_length=100, unique=True, verbose_name='Название', validators=[validate_title])
+
     def __str__(self):
         """Строковое представление объекта"""
         return self.name
@@ -53,7 +55,7 @@ class Media(models.Model):
     title = models.CharField(max_length=255)
     release_date = models.DateField(default=timezone.now)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="media")
-    genres = models.ManyToManyField(Genre, related_name="media")
+    genres = models.ManyToManyField(Genre, through='MediaGenre')
     type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
     poster = models.ImageField(upload_to='media_posters/', blank=True, null=True)
     rating = models.IntegerField(default=0, validators=[validate_rating], blank=True, null=True)
@@ -68,6 +70,28 @@ class Media(models.Model):
 
     def get_absolute_url(self):
         return reverse('media_detail', args=[str(self.id)])
+
+    def clean_rating(self):
+        if self.rating < 0 or self.rating > 10:
+            raise ValidationError("Rating must be between 0 and 10")
+        return self.rating
+
+    def save(self, commit=True):
+        # Дополнительная логика перед сохранением, например, можно обновить дату выпуска
+        if not self.release_date:
+            self.release_date = timezone.now()
+
+        # Сохраняем объект в базу данных
+        if commit:
+            super().save(commit=True)
+        else:
+            return super().save(commit=False)
+
+
+class MediaGenre(models.Model):
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    date_added = models.DateField(default=timezone.now)
 
 
 class AbstractMedia(PolymorphicModel):

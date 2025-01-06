@@ -8,7 +8,7 @@ from media.models import Movie, TVShow, Country, Genre, Rating, Media
 
 
 def media_list_view(request):
-    media_list = Media.objects.all()
+    media_list = Media.objects.prefetch_related('genres').all()
 
     paginator = Paginator(media_list, 5)
     page = request.GET.get('page')

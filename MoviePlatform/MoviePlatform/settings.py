@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django_celery_results',
     'mailhog',
+    'debug_toolbar',
 ]
 
 SITE_ID = 1
@@ -74,6 +75,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''

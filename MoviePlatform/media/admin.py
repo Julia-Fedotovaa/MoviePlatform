@@ -1,10 +1,13 @@
 """Модуль административной панели приложения media"""
 from django.contrib import admin
+from django.contrib.admin.widgets import AutocompleteSelect
+from django.db import models
+from django.forms.widgets import CheckboxSelectMultiple, DateInput
 from import_export.admin import ExportMixin
 from import_export.formats.base_formats import JSON, CSV, XLSX
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Country, Genre, Movie, TVShow, Rating, Media
+from .models import Country, Genre, Movie, TVShow, Rating, Media, MediaGenre
 from .resources import MovieResource, TVShowResource
 
 app_name = 'Медиа'
@@ -84,3 +87,15 @@ class MediaAdmin(admin.ModelAdmin):
         return ", ".join(genre.name for genre in obj.genres.all())
 
     get_genres.short_description = 'Жанры'
+
+
+@admin.register(MediaGenre)
+class MediaGenreAdmin(admin.ModelAdmin):
+    """Административная панель для модели MediaGenre"""
+    list_display = ('media', 'genre')
+    list_filter = ('genre',)
+    search_fields = ('media', 'genre')
+    ordering = ('media', 'genre')
+    formfield_overrides = {
+        models.DateField: {'widget': DateInput(attrs={'type': 'date'})},
+    }
