@@ -13,6 +13,11 @@ from .resources import MovieResource, TVShowResource
 app_name = 'Медиа'
 
 
+class RatingInline(admin.TabularInline):
+    model = Rating
+    extra = 1
+
+
 @admin.register(Movie)
 class MovieAdmin(ExportMixin, SimpleHistoryAdmin):
     """
@@ -24,6 +29,7 @@ class MovieAdmin(ExportMixin, SimpleHistoryAdmin):
     ordering = ('title', 'release_date')
     resource_class = MovieResource
     formats = (JSON, CSV, XLSX)
+    inlines = [RatingInline]
 
     def get_genres(self, obj):
         """Получение жанров фильма"""
@@ -41,6 +47,7 @@ class TVShowAdmin(ExportMixin, SimpleHistoryAdmin):
     ordering = ('title', 'release_date')
     resource_class = TVShowResource
     formats = (JSON, CSV, XLSX)
+    inlines = [RatingInline]
 
 
 @admin.register(Rating)

@@ -115,6 +115,8 @@ class MovieView(DetailView):
                 rating=int(rating),
             )
 
+        request.session['last_viewed_movie'] = movie.pk
+
         return redirect('movie', pk=movie.pk)
 
 
@@ -149,6 +151,8 @@ class TVShowView(DetailView):
                 user=request.user,
                 rating=int(rating),
             )
+
+        request.session['last_viewed_tvshow'] = tvshow.pk
 
         return redirect('tvshow', pk=tvshow.pk)
 
