@@ -73,19 +73,9 @@ class MediaView(TemplateView):
         context['tvshows'] = tvshows_page
         context['movies'] = movies_page
 
-        high_rated_movies = cache.get('high_rated_movies')
-        if not high_rated_movies:
-            high_rated_movies = list(Movie.get_high_rated()[0:3])
-            cache.set('high_rated_movies', high_rated_movies, timeout=60 * 60)  # Кэширование на 1 час
-        else:
-            high_rated_movies = Movie.objects.filter(id__in=[movie.id for movie in high_rated_movies])
+        high_rated_movies = Movie.get_high_rated()[0:3]
 
-        high_rated_tvshows = cache.get('high_rated_tvshows')
-        if not high_rated_tvshows:
-            high_rated_tvshows = list(TVShow.get_high_rated()[0:3])
-            cache.set('high_rated_tvshows', high_rated_tvshows, timeout=60 * 60)
-        else:
-            high_rated_tvshows = TVShow.objects.filter(id__in=[tvshow.id for tvshow in high_rated_tvshows])
+        high_rated_tvshows = TVShow.get_high_rated()[0:3]
 
         context['high_rated_movies'] = high_rated_movies
         context['high_rated_tvshows'] = high_rated_tvshows
