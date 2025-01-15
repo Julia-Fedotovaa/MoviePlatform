@@ -1,14 +1,17 @@
 """Модуль представлений приложения media"""
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView
 
-from media.models import Movie, TVShow, Country, Genre, Rating, Media
+from media.forms import MediaForm
+from media.models import Movie, TVShow, Country, Genre, Rating, Media, AbstractMedia
 
 
 def media_list_view(request):
-    media_list = Media.objects.prefetch_related('genres').all()
+    # chaining filters
+    media_list = Media.objects.prefetch_related('genres').filter(rating__gte=1).order_by('-release_date')
 
     paginator = Paginator(media_list, 5)
     page = request.GET.get('page')
@@ -20,7 +23,14 @@ def media_list_view(request):
     except EmptyPage:
         media = paginator.page(paginator.num_pages)
 
-    return render(request, 'media_list.html', {'media': media})
+    media_titles = media_list.values_list('title', flat=True)
+    has_high_rated = media_list.filter(rating__gte=4).exists()
+
+    return render(request, 'media_list.html',
+                  {'media': media,
+                   'media_titles': media_titles,
+                   'has_high_rated': has_high_rated
+                   })
 
 
 def media_detail_view(request, pk):
@@ -157,6 +167,98 @@ class TVShowView(DetailView):
         return redirect('tvshow', pk=tvshow.pk)
 
 
+class ReviewEditView(TemplateView):
+    """Представление для редактирования отзыва"""
+    template_name = 'media/review_edit.html'
+
+    media_type = None
+    media_id = None
+
+    def get_context_data(self, **kwargs):
+        """Метод для получения контекста"""
+        context = super().get_context_data(**kwargs)
+        media_id = self.kwargs.get('pk')
+        rating_id = self.kwargs.get('rating')
+
+        context['media'] = get_object_or_404(Movie, pk=media_id)
+        if not context['media']:
+            context['media'] = get_object_or_404(TVShow, pk=media_id)
+            if not context['media']:
+                raise ValueError('Media not found')
+
+        self.media_type = context['media'].get_media_type()
+        self.media_id = media_id
+        context['rating'] = Rating.objects.get(pk=rating_id)
+        if context['rating'].media.id != int(media_id):
+            raise ValueError('Rating not found')
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Метод для обновления рейтинга"""
+        rating = Rating.objects.get(pk=self.kwargs.get('rating'))
+        rating.rating = request.POST.get('rating')
+        rating.save()
+        media = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
+        if not media:
+            media = get_object_or_404(TVShow, pk=self.kwargs.get('pk'))
+            if not media:
+                raise ValueError('Media not found')
+
+        media_type = media.get_media_type()
+
+        if media_type == 'movie':
+            return redirect('movie', pk=media.id)
+        elif media_type == 'tvshow':
+            return redirect('tvshow', pk=media.id)
+
+
+class ReviewDeleteView(TemplateView):
+    """Представление для удаления отзыва"""
+    template_name = 'media/review_delete.html'
+
+    media_type = None
+    media_id = None
+
+    def get_context_data(self, **kwargs):
+        """Метод для получения контекста"""
+        context = super().get_context_data(**kwargs)
+        media_id = self.kwargs.get('pk')
+        rating_id = self.kwargs.get('rating')
+
+        context['media'] = get_object_or_404(Movie, pk=media_id)
+        if not context['media']:
+            context['media'] = get_object_or_404(TVShow, pk=media_id)
+            if not context['media']:
+                raise ValueError('Media not found')
+
+        self.media_type = context['media'].get_media_type()
+        self.media_id = media_id
+        context['rating'] = Rating.objects.get(pk=rating_id)
+        if context['rating'].media.id != int(media_id):
+            raise ValueError('Rating not found')
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Метод для удаления рейтинга"""
+        rating = Rating.objects.get(pk=self.kwargs.get('rating'))
+        media = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
+        if not media:
+            media = get_object_or_404(TVShow, pk=self.kwargs.get('pk'))
+            if not media:
+                raise ValueError('Media not found')
+
+        media_type = media.get_media_type()
+
+        rating.delete()
+
+        if media_type == 'movie':
+            return redirect('movie', pk=media.id)
+        elif media_type == 'tvshow':
+            return redirect('tvshow', pk=media.id)
+
+
 class AddMovieView(CreateView):
     """Представление для добавления фильма"""
     model = Movie
@@ -170,6 +272,11 @@ class AddMovieView(CreateView):
         context['countries'] = Country.objects.all()
         context['genres'] = Genre.objects.all()
         return context
+
+    def form_valid(self, form):
+        new_movie = form.save(commit=False)
+        new_movie.save()
+        return super().form_valid(form)
 
 
 class AddTVShowView(CreateView):
@@ -208,3 +315,21 @@ class ComplexQueriesView(TemplateView):
             review.media_name = review.media.title
 
         return context
+
+
+def add_media_view(request):
+    if request.method == 'POST':
+        form = MediaForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/media/')
+    else:
+        form = MediaForm()
+
+    return render(request, 'add_media.html', {'form': form})
+
+
+def manage_old_movies():
+    old_movies = Movie.objects.filter(release_date__lt="2000-01-01", rating__lt=3)
+    old_movies.update(is_published=False)
+    old_movies.delete()

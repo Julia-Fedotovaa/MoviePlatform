@@ -18,7 +18,7 @@ MEDIA_TYPE_CHOICES = [
 
 class MediaManager(models.Manager):
     def top_rated(self):
-        return self.filter(rating__gte=8).order_by('-rating')
+        return self.filter(rating__gte=3).order_by('-rating')
 
 
 class Genre(models.Model):
@@ -66,6 +66,8 @@ class Media(models.Model):
 
     class Meta:
         ordering = ['-release_date']
+        verbose_name = 'Другое медиа'
+        verbose_name_plural = 'Другие медиа'
 
     def __str__(self):
         return self.title
@@ -106,6 +108,10 @@ class AbstractMedia(PolymorphicModel):
         """Строковое представление объекта"""
         return self.title
 
+    def get_media_type(self):
+        """Метод для получения типа медиа"""
+        return ContentType.objects.get_for_model(self)
+
     class Meta:
         """Метаданные модели"""
         verbose_name = 'Медиа'
@@ -119,7 +125,7 @@ class Movie(AbstractMedia):
 
     def get_media_type(self):
         """Метод для получения типа медиа"""
-        return ContentType.objects.get_for_model(self)
+        return 'movie'
 
     @classmethod
     def get_high_rated(cls, threshold=4.0):
@@ -188,7 +194,7 @@ class TVShow(AbstractMedia):
 
     def get_media_type(self):
         """Метод для получения типа медиа"""
-        return ContentType.objects.get_for_model(self)
+        return 'tvshow'
 
     def reviews(self):
         """Метод для получения отзывов"""

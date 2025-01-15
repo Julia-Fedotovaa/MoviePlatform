@@ -1,0 +1,21 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Добавление медиа{% endblock %}
+
+{% block content %}
+
+    <h1>Добавление медиа</h1>
+    <form method="post" enctype="multipart/form-data" class="w-50">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div>
+                {{ field.label_tag }} {{ field }}
+                {{ field.errors }}
+            </div><br>
+        {% endfor %}
+        <br>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+
+{% endblock %}

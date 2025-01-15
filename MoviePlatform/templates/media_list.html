@@ -4,11 +4,14 @@
 {% block title %}Все медиа{% endblock %}
 
 {% block content %}
+
     <div class="row align-items-center mb-3">
         <div class="col">
-            <h1>Все медиа</h1>
+            <h1>Все медиа <a href="{% url 'add_media' %}" class="btn btn-primary">Добавить медиа</a></h1>
             <h5>Всего медиа: {% media_count %}</h5>
-            <h5>Рейтинг медиа: {% top_rated_media %}</h5>
+            <h5>Лучшие медиа (рейтинг > 3): {% top_rated_media %}</h5>
+            <h5>Заголовки медиа: {% for title in media_titles %}{{ title }}{% if not forloop.last %}, {% endif %}{% endfor %}</h5>
+            <h5>Есть медиа с рейтингом > 4: {% if has_high_rated %}Да{% else %}Нет{% endif %}</h5>
         </div>
     </div>
 
