@@ -3,10 +3,10 @@
 {% block title %}Фильмы и сериалы{% endblock %}
 
 {% block content %}
-    <div class="row">
+    <div class="row gap-5 mb-5">
 
         <div class="col">
-            <h1 class="mb-4">Лучшие фильмы</h1>
+            <h1 class="mb-4 text-center">Лучшие фильмы</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 {% if high_rated_movies %}
                     {% for movie in high_rated_movies %}
@@ -19,7 +19,7 @@
         </div>
 
         <div class="col">
-            <h1 class="mb-4">Лучшие сериалы</h1>
+            <h1 class="mb-4 text-center">Лучшие сериалы</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 {% if high_rated_tvshows %}
                     {% for tvshow in high_rated_tvshows %}
@@ -120,6 +120,5 @@
         {% endif %}
     </span>
     </div>
-
 
 {% endblock %}
