@@ -1,6 +1,7 @@
 """Модуль представлений приложения media"""
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models.aggregates import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView
@@ -47,6 +48,8 @@ class MediaView(TemplateView):
         """Метод для получения контекста"""
         context = super().get_context_data(**kwargs)
 
+        search_query = self.request.GET.get('search', '').strip()
+
         tvshows_list = cache.get('tvshows_list')
         if not tvshows_list:
             tvshows_list = TVShow.objects.all()
@@ -61,6 +64,16 @@ class MediaView(TemplateView):
         else:
             movies_list = Movie.objects.filter(id__in=[movie.id for movie in movies_list])
 
+        tvshows_list = tvshows_list.distinct()
+        movies_list = movies_list.distinct()
+
+        tvshows_list = tvshows_list.exclude(is_published=False)
+        movies_list = movies_list.exclude(is_published=False)
+
+        if search_query:
+            tvshows_list = tvshows_list.filter(title__icontains=search_query)
+            movies_list = movies_list.filter(title__icontains=search_query)
+
         tvshows_paginator = Paginator(tvshows_list, 5)
         movies_paginator = Paginator(movies_list, 5)
 
@@ -74,8 +87,13 @@ class MediaView(TemplateView):
         context['movies'] = movies_page
 
         high_rated_movies = Movie.get_high_rated()[0:3]
-
         high_rated_tvshows = TVShow.get_high_rated()[0:3]
+
+        movie_count = Movie.objects.aggregate(total=Count('id'))['total']
+        context['movie_count'] = movie_count
+
+        tvshow_count = TVShow.objects.aggregate(total=Count('id'))['total']
+        context['tvshow_count'] = tvshow_count
 
         context['high_rated_movies'] = high_rated_movies
         context['high_rated_tvshows'] = high_rated_tvshows

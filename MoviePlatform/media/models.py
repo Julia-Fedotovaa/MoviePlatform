@@ -103,6 +103,7 @@ class AbstractMedia(PolymorphicModel):
     release_date = models.DateField(verbose_name='Дата выхода', validators=[release_date_validator])
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name='Страна')
     genres = models.ManyToManyField(Genre, verbose_name='Жанры')
+    is_published = models.BooleanField(verbose_name='Опубликовано', default=True)
 
     def __str__(self):
         """Строковое представление объекта"""
